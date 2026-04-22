@@ -275,11 +275,11 @@ function SearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="키워드를 입력해 검색하세요"
-        className="w-full rounded-2xl border border-gray-200 bg-white py-3 pl-11 pr-20 text-sm shadow-sm outline-none transition-all placeholder:text-gray-400 focus:border-gray-900 focus:shadow-md sm:py-4 sm:pl-12 sm:pr-32 sm:text-base"
+        className="w-full rounded-2xl border border-gray-200 bg-white py-3.5 pl-11 pr-20 text-[15px] shadow-sm outline-none transition-all placeholder:text-gray-400 focus:border-gray-900 focus:shadow-md sm:py-4 sm:pl-12 sm:pr-32 sm:text-[17px]"
       />
       <button
         type="submit"
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-gray-900 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-gray-700 sm:px-5 sm:py-2.5 sm:text-sm"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-gray-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 sm:px-5 sm:py-2.5 sm:text-base"
       >
         검색
       </button>
@@ -298,6 +298,12 @@ function FeaturedSection({
   onRangeChange: (r: TimeRange) => void;
   loading: boolean;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollByPage = (dir: 1 | -1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: "smooth" });
+  };
   return (
     <section>
       <SectionHeader
@@ -308,27 +314,33 @@ function FeaturedSection({
             : "이번 주 여러 키워드에 걸친 이슈"
         }
       >
-        <div className="inline-flex rounded-lg bg-gray-100 p-1">
-          <button
-            onClick={() => onRangeChange("daily")}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-              range === "daily"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            일간
-          </button>
-          <button
-            onClick={() => onRangeChange("weekly")}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-              range === "weekly"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            주간
-          </button>
+        <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-1 md:flex">
+            <ArrowButton onClick={() => scrollByPage(-1)} direction="left" />
+            <ArrowButton onClick={() => scrollByPage(1)} direction="right" />
+          </div>
+          <div className="inline-flex rounded-lg bg-gray-100 p-1">
+            <button
+              onClick={() => onRangeChange("daily")}
+              className={`rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                range === "daily"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              일간
+            </button>
+            <button
+              onClick={() => onRangeChange("weekly")}
+              className={`rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                range === "weekly"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              주간
+            </button>
+          </div>
         </div>
       </SectionHeader>
 
@@ -339,11 +351,14 @@ function FeaturedSection({
           message={`${range === "daily" ? "오늘" : "이번 주"} 표시할 주요 뉴스가 없습니다.`}
         />
       ) : (
-        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-4">
+        <div
+          ref={scrollRef}
+          className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:px-0"
+        >
           {items.map((item) => (
             <div
               key={item.link}
-              className="w-[85%] shrink-0 snap-start md:w-auto"
+              className="w-[85%] shrink-0 snap-start md:w-[calc((100%-1.5rem)/3)] lg:w-[calc((100%-2.25rem)/4)]"
             >
               <NewsCard item={item} />
             </div>
@@ -365,34 +380,48 @@ function CategoryHighlights({
   onCategoryClick: (catId: string) => void;
   loading: boolean;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollByPage = (dir: 1 | -1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: "smooth" });
+  };
   return (
     <section>
       <SectionHeader
         title="카테고리별 인사이트"
         subtitle="주제별 최신 뉴스 모음"
-      />
-      <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-6">
+      >
+        <div className="hidden items-center gap-1 md:flex">
+          <ArrowButton onClick={() => scrollByPage(-1)} direction="left" />
+          <ArrowButton onClick={() => scrollByPage(1)} direction="right" />
+        </div>
+      </SectionHeader>
+      <div
+        ref={scrollRef}
+        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:px-0"
+      >
         {CATEGORIES.map((cat) => {
           const items = tops[cat.id] ?? [];
           return (
             <div
               key={cat.id}
-              className="flex w-[85%] shrink-0 snap-start flex-col rounded-xl border border-gray-200 bg-white p-4 md:w-auto"
+              className="flex w-[85%] shrink-0 snap-start flex-col rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm md:w-[calc((100%-1.5rem)/3)] lg:w-[calc((100%-3.75rem)/6)]"
             >
               <button
                 onClick={() => onCategoryClick(cat.id)}
                 className="flex w-full items-center justify-between gap-2 text-left"
                 title="전체보기"
               >
-                <h3 className="flex min-w-0 items-center gap-2 text-sm font-bold text-gray-900">
+                <h3 className="flex min-w-0 items-center gap-2 text-[15px] font-bold text-gray-900">
                   <span
-                    className={`h-2 w-2 shrink-0 rounded-full ${
+                    className={`h-2.5 w-2.5 shrink-0 rounded-full ${
                       DOT_COLORS[cat.id] ?? "bg-gray-400"
                     }`}
                   />
                   <span className="truncate">{cat.label}</span>
                 </h3>
-                <span className="shrink-0 whitespace-nowrap text-[11px] text-gray-400">
+                <span className="shrink-0 whitespace-nowrap text-[12px] text-gray-400">
                   {counts[cat.id] ?? 0}건 →
                 </span>
               </button>
@@ -419,11 +448,11 @@ function CategoryHighlights({
                         rel="noopener noreferrer"
                         className="group block"
                       >
-                        <div className="text-[10px] text-gray-500">
+                        <div className="text-[11px] text-gray-500">
                           {hostOf(item.originallink)} ·{" "}
                           {formatRelative(item.pubDate)}
                         </div>
-                        <p className="mt-0.5 line-clamp-2 text-[13px] font-medium leading-snug text-gray-800 group-hover:text-gray-600">
+                        <p className="mt-1 line-clamp-2 text-[14px] font-medium leading-snug text-gray-800 group-hover:text-gray-600">
                           {stripHtml(item.title)}
                         </p>
                       </a>
@@ -488,11 +517,13 @@ function FullFeed({
           {grouped.map(({ group, items }) => (
             <div key={group} className="space-y-3">
               <div className="flex items-center gap-3">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500">
+                <h3 className="text-[15px] font-bold uppercase tracking-wider text-gray-500">
                   {group}
                 </h3>
                 <div className="h-px flex-1 bg-gray-200" />
-                <span className="text-xs text-gray-400">{items.length}건</span>
+                <span className="text-[13px] text-gray-400">
+                  {items.length}건
+                </span>
               </div>
               <div className="space-y-2">
                 {items.map((item) => (
@@ -517,11 +548,11 @@ function SectionHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 sm:mb-4">
+    <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1.5">
       <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
-        <h2 className="text-lg font-bold text-gray-900 sm:text-xl">{title}</h2>
+        <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">{title}</h2>
         {subtitle && (
-          <p className="text-xs text-gray-500 sm:text-sm">{subtitle}</p>
+          <p className="text-[13px] text-gray-500 sm:text-sm">{subtitle}</p>
         )}
       </div>
       {children && <div className="shrink-0">{children}</div>}
@@ -543,7 +574,7 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all ${
+      className={`whitespace-nowrap rounded-full px-4 py-2 text-[15px] font-medium transition-all ${
         active
           ? "bg-gray-900 text-white shadow-sm"
           : "bg-white text-gray-700 ring-1 ring-gray-200 hover:ring-gray-300"
@@ -552,11 +583,45 @@ function TabButton({
       {label}
       {count > 0 && (
         <span
-          className={`ml-2 text-xs ${active ? "text-gray-300" : "text-gray-400"}`}
+          className={`ml-2 text-[13px] ${active ? "text-gray-300" : "text-gray-400"}`}
         >
           {count}
         </span>
       )}
+    </button>
+  );
+}
+
+function ArrowButton({
+  onClick,
+  direction,
+}: {
+  onClick: () => void;
+  direction: "left" | "right";
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={direction === "left" ? "이전" : "다음"}
+      className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-600 ring-1 ring-gray-200 transition-all hover:bg-gray-50 hover:text-gray-900 hover:ring-gray-300 active:scale-95"
+    >
+      <svg
+        className="h-4 w-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={2.2}
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d={
+            direction === "left"
+              ? "M15.75 19.5 8.25 12l7.5-7.5"
+              : "m8.25 4.5 7.5 7.5-7.5 7.5"
+          }
+        />
+      </svg>
     </button>
   );
 }
@@ -570,7 +635,7 @@ function NewsCard({ item }: { item: AnyItem }) {
       rel="noopener noreferrer"
       className="group block h-full rounded-xl border border-gray-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
     >
-      <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+      <div className="flex flex-wrap items-center gap-2 text-[13px] text-gray-500">
         <span className="font-medium text-gray-700">
           {hostOf(item.originallink)}
         </span>
@@ -581,7 +646,7 @@ function NewsCard({ item }: { item: AnyItem }) {
             {categories.map((id) => (
               <span
                 key={id}
-                className={`rounded-md px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${
+                className={`rounded-md px-2 py-0.5 text-[12px] font-medium ring-1 ring-inset ${
                   CATEGORY_COLORS[id] ?? "bg-gray-100 text-gray-700"
                 }`}
               >
@@ -591,7 +656,7 @@ function NewsCard({ item }: { item: AnyItem }) {
           </span>
         )}
       </div>
-      <h3 className="mt-2 text-base font-semibold leading-snug text-gray-900 group-hover:text-gray-700">
+      <h3 className="mt-2.5 text-[17px] font-semibold leading-snug text-gray-900 group-hover:text-gray-700">
         {stripHtml(item.title)}
       </h3>
     </a>

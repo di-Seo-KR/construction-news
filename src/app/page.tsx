@@ -10,10 +10,10 @@ export default function Home() {
               K
             </div>
             <div>
-              <h1 className="text-base font-bold text-gray-900 sm:text-lg">
+              <h1 className="text-lg font-bold text-gray-900 sm:text-xl">
                 KBCI 뉴스
               </h1>
-              <p className="text-[11px] text-gray-500 sm:text-xs">
+              <p className="text-[12px] text-gray-500 sm:text-[13px]">
                 KB신용정보 사내 뉴스 모니터링
               </p>
             </div>
