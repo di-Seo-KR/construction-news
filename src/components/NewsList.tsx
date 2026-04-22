@@ -119,7 +119,7 @@ export default function NewsList() {
     for (const cat of CATEGORIES) {
       map[cat.id] = allItems
         .filter((it) => it.categories.includes(cat.id))
-        .slice(0, 4);
+        .slice(0, 3);
     }
     return map;
   }, [allItems]);
@@ -172,7 +172,7 @@ export default function NewsList() {
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-6 sm:space-y-8">
       <SearchBar
         value={searchInput}
         onChange={setSearchInput}
@@ -339,7 +339,7 @@ function FeaturedSection({
           message={`${range === "daily" ? "오늘" : "이번 주"} 표시할 주요 뉴스가 없습니다.`}
         />
       ) : (
-        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-4">
           {items.map((item) => (
             <div
               key={item.link}
@@ -371,15 +371,19 @@ function CategoryHighlights({
         title="카테고리별 인사이트"
         subtitle="주제별 최신 뉴스 모음"
       />
-      <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3">
+      <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-6">
         {CATEGORIES.map((cat) => {
           const items = tops[cat.id] ?? [];
           return (
             <div
               key={cat.id}
-              className="flex w-[85%] shrink-0 snap-start flex-col rounded-xl border border-gray-200 bg-white p-5 md:w-auto"
+              className="flex w-[85%] shrink-0 snap-start flex-col rounded-xl border border-gray-200 bg-white p-4 md:w-auto"
             >
-              <div className="flex items-center justify-between gap-2">
+              <button
+                onClick={() => onCategoryClick(cat.id)}
+                className="flex w-full items-center justify-between gap-2 text-left"
+                title="전체보기"
+              >
                 <h3 className="flex min-w-0 items-center gap-2 text-sm font-bold text-gray-900">
                   <span
                     className={`h-2 w-2 shrink-0 rounded-full ${
@@ -388,28 +392,25 @@ function CategoryHighlights({
                   />
                   <span className="truncate">{cat.label}</span>
                 </h3>
-                <button
-                  onClick={() => onCategoryClick(cat.id)}
-                  className="shrink-0 whitespace-nowrap text-xs text-gray-500 hover:text-gray-900"
-                >
-                  전체 {counts[cat.id] ?? 0} →
-                </button>
-              </div>
+                <span className="shrink-0 whitespace-nowrap text-[11px] text-gray-400">
+                  {counts[cat.id] ?? 0}건 →
+                </span>
+              </button>
               {loading ? (
-                <ul className="mt-4 space-y-3">
-                  {Array.from({ length: 4 }).map((_, i) => (
+                <ul className="mt-3 space-y-2.5">
+                  {Array.from({ length: 3 }).map((_, i) => (
                     <li key={i} className="animate-pulse">
-                      <div className="h-3 w-20 rounded bg-gray-100" />
-                      <div className="mt-1.5 h-4 w-full rounded bg-gray-200" />
+                      <div className="h-3 w-16 rounded bg-gray-100" />
+                      <div className="mt-1 h-3.5 w-full rounded bg-gray-200" />
                     </li>
                   ))}
                 </ul>
               ) : items.length === 0 ? (
-                <p className="mt-4 text-sm text-gray-400">
+                <p className="mt-3 text-xs text-gray-400">
                   아직 뉴스가 없습니다.
                 </p>
               ) : (
-                <ol className="mt-4 space-y-3">
+                <ol className="mt-3 space-y-2.5">
                   {items.map((item) => (
                     <li key={item.link}>
                       <a
@@ -418,11 +419,11 @@ function CategoryHighlights({
                         rel="noopener noreferrer"
                         className="group block"
                       >
-                        <div className="text-[11px] text-gray-500">
+                        <div className="text-[10px] text-gray-500">
                           {hostOf(item.originallink)} ·{" "}
                           {formatRelative(item.pubDate)}
                         </div>
-                        <p className="mt-0.5 line-clamp-2 text-sm font-medium text-gray-800 group-hover:text-gray-600">
+                        <p className="mt-0.5 line-clamp-2 text-[13px] font-medium leading-snug text-gray-800 group-hover:text-gray-600">
                           {stripHtml(item.title)}
                         </p>
                       </a>
@@ -516,11 +517,11 @@ function SectionHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-      <div className="min-w-0">
+    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 sm:mb-4">
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
         <h2 className="text-lg font-bold text-gray-900 sm:text-xl">{title}</h2>
         {subtitle && (
-          <p className="mt-1 text-xs text-gray-500 sm:text-sm">{subtitle}</p>
+          <p className="text-xs text-gray-500 sm:text-sm">{subtitle}</p>
         )}
       </div>
       {children && <div className="shrink-0">{children}</div>}
@@ -567,7 +568,7 @@ function NewsCard({ item }: { item: AnyItem }) {
       href={item.link}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block rounded-xl border border-gray-200 bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
+      className="group block h-full rounded-xl border border-gray-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
     >
       <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
         <span className="font-medium text-gray-700">
@@ -603,7 +604,7 @@ function SkeletonGrid() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="animate-pulse rounded-xl border border-gray-200 bg-white p-5"
+          className="animate-pulse rounded-xl border border-gray-200 bg-white p-4"
         >
           <div className="h-3 w-32 rounded bg-gray-200" />
           <div className="mt-3 h-5 w-3/4 rounded bg-gray-200" />
@@ -621,7 +622,7 @@ function SkeletonList() {
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="animate-pulse rounded-xl border border-gray-200 bg-white p-5"
+          className="animate-pulse rounded-xl border border-gray-200 bg-white p-4"
         >
           <div className="h-3 w-32 rounded bg-gray-200" />
           <div className="mt-3 h-5 w-3/4 rounded bg-gray-200" />
