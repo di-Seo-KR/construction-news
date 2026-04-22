@@ -586,9 +586,6 @@ function NewsCard({ item }: { item: AnyItem }) {
       <h3 className="mt-2 text-base font-semibold leading-snug text-gray-900 group-hover:text-gray-700">
         {stripHtml(item.title)}
       </h3>
-      <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-gray-600">
-        {stripHtml(item.description)}
-      </p>
     </a>
   );
 }

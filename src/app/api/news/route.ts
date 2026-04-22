@@ -52,26 +52,5 @@ export async function GET() {
     categories: r.categories ?? [],
   }));
 
-  if (items.length === 0) {
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-    let role = "parse-fail";
-    try {
-      const payload = JSON.parse(
-        Buffer.from(key.split(".")[1] ?? "", "base64").toString(),
-      );
-      role = payload.role ?? "no-role";
-    } catch {}
-    return NextResponse.json({
-      total: 0,
-      items: [],
-      debug: {
-        keyRole: role,
-        urlPrefix: (process.env.SUPABASE_URL ?? "").slice(0, 40),
-        dataIsNull: data === null,
-        rawLength: data?.length ?? null,
-      },
-    });
-  }
-
   return NextResponse.json({ total: items.length, items });
 }
