@@ -1,17 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import type { NewsResponseItem } from "@/app/api/news/route";
 import type { NaverNewsItem } from "@/app/api/naver-news/route";
-
-type EnrichedNewsItem = NewsResponseItem;
-import { CATEGORIES, FEATURED_KEYWORDS } from "@/lib/categories";
+import { CATEGORIES } from "@/lib/categories";
+import { filterFeatured, type TimeRange } from "@/lib/featured";
 import {
   dateGroupOf,
   formatRelative,
   hostOf,
   stripHtml,
 } from "@/lib/format";
+
+type EnrichedNewsItem = NewsResponseItem;
 
 const ALL_TAB = "__all__";
 const GROUP_ORDER = ["오늘", "어제", "이번 주", "이전"];
@@ -37,15 +39,7 @@ const DOT_COLORS: Record<string, string> = {
 const labelOf = (id: string) =>
   CATEGORIES.find((c) => c.id === id)?.label ?? id;
 
-type TimeRange = "daily" | "weekly";
 type AnyItem = EnrichedNewsItem | NaverNewsItem;
-
-const inRange = (pubDate: string, range: TimeRange) => {
-  const t = new Date(pubDate).getTime();
-  if (Number.isNaN(t)) return false;
-  const ms = range === "daily" ? 86_400_000 : 7 * 86_400_000;
-  return Date.now() - t < ms;
-};
 
 type State =
   | { mode: "all"; items: EnrichedNewsItem[] }
@@ -101,20 +95,10 @@ export default function NewsList() {
     [data],
   );
 
-  const featured = useMemo(() => {
-    return allItems
-      .filter((it) => inRange(it.pubDate, featuredRange))
-      .filter((it) => {
-        const text = stripHtml(it.title);
-        return FEATURED_KEYWORDS.some((k) => text.includes(k));
-      })
-      .slice()
-      .sort(
-        (a, b) =>
-          new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
-      )
-      .slice(0, 50);
-  }, [allItems, featuredRange]);
+  const featured = useMemo(
+    () => filterFeatured(allItems, featuredRange, 12),
+    [allItems, featuredRange],
+  );
 
   const categoryTops = useMemo(() => {
     const map: Record<string, EnrichedNewsItem[]> = {};
@@ -277,7 +261,7 @@ function SearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="키워드를 입력해 검색하세요"
-        className="w-full rounded-2xl border border-gray-200 bg-white py-3.5 pl-11 pr-20 text-[15px] shadow-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#FFB81C] focus:shadow-[0_0_0_4px_rgba(255,184,28,0.15)] sm:py-4 sm:pl-12 sm:pr-32 sm:text-[17px]"
+        className="w-full rounded-2xl border border-gray-200 bg-white py-3.5 pl-11 pr-20 text-[15px] font-medium text-gray-900 shadow-sm outline-none transition-all placeholder:font-normal placeholder:text-gray-400 focus:border-[#FFB81C] focus:shadow-[0_0_0_4px_rgba(255,184,28,0.15)] sm:py-4 sm:pl-12 sm:pr-32 sm:text-[17px]"
       />
       <button
         type="submit"
@@ -300,14 +284,14 @@ function FeaturedSection({
   onRangeChange: (r: TimeRange) => void;
   loading: boolean;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollByPage = (dir: 1 | -1) => {
+  const scrollByCard = (dir: 1 | -1) => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: "smooth" });
+    const firstCard = el.children[0] as HTMLElement | undefined;
+    const cardWidth = firstCard?.offsetWidth ?? el.clientWidth * 0.85;
+    el.scrollBy({ left: dir * (cardWidth + 12), behavior: "smooth" });
   };
-  const visibleItems = expanded ? items : items.slice(0, 8);
   return (
     <section>
       <SectionHeader
@@ -319,12 +303,10 @@ function FeaturedSection({
         }
       >
         <div className="flex flex-wrap items-center justify-end gap-2">
-          {!expanded && (
-            <div className="hidden items-center gap-1 md:flex">
-              <ArrowButton onClick={() => scrollByPage(-1)} direction="left" />
-              <ArrowButton onClick={() => scrollByPage(1)} direction="right" />
-            </div>
-          )}
+          <div className="hidden items-center gap-1 md:flex">
+            <ArrowButton onClick={() => scrollByCard(-1)} direction="left" />
+            <ArrowButton onClick={() => scrollByCard(1)} direction="right" />
+          </div>
           <div className="inline-flex rounded-lg bg-gray-100 p-1">
             <button
               onClick={() => onRangeChange("daily")}
@@ -347,12 +329,12 @@ function FeaturedSection({
               주간
             </button>
           </div>
-          <button
-            onClick={() => setExpanded((v) => !v)}
+          <Link
+            href="/featured"
             className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-gray-700 ring-1 ring-gray-200 transition-colors hover:bg-gray-50 hover:text-gray-900"
           >
-            {expanded ? "접기 ↑" : `+ 더보기${items.length > 0 ? ` ${items.length}` : ""}`}
-          </button>
+            + 더보기
+          </Link>
         </div>
       </SectionHeader>
 
@@ -362,18 +344,12 @@ function FeaturedSection({
         <EmptyState
           message={`${range === "daily" ? "오늘" : "이번 주"} 표시할 주요 뉴스가 없습니다.`}
         />
-      ) : expanded ? (
-        <div className="space-y-3">
-          {visibleItems.map((item) => (
-            <NewsCard key={item.link} item={item} />
-          ))}
-        </div>
       ) : (
         <div
           ref={scrollRef}
           className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:px-0"
         >
-          {visibleItems.map((item) => (
+          {items.map((item) => (
             <div
               key={item.link}
               className="w-[85%] shrink-0 snap-start md:w-[calc((100%-1.5rem)/3)] lg:w-[calc((100%-2.25rem)/4)]"
@@ -399,10 +375,12 @@ function CategoryHighlights({
   loading: boolean;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollByPage = (dir: 1 | -1) => {
+  const scrollByCard = (dir: 1 | -1) => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: "smooth" });
+    const firstCard = el.children[0] as HTMLElement | undefined;
+    const cardWidth = firstCard?.offsetWidth ?? el.clientWidth * 0.85;
+    el.scrollBy({ left: dir * (cardWidth + 12), behavior: "smooth" });
   };
   return (
     <section>
@@ -411,8 +389,8 @@ function CategoryHighlights({
         subtitle="주제별 최신 뉴스 모음"
       >
         <div className="hidden items-center gap-1 md:flex">
-          <ArrowButton onClick={() => scrollByPage(-1)} direction="left" />
-          <ArrowButton onClick={() => scrollByPage(1)} direction="right" />
+          <ArrowButton onClick={() => scrollByCard(-1)} direction="left" />
+          <ArrowButton onClick={() => scrollByCard(1)} direction="right" />
         </div>
       </SectionHeader>
       <div
