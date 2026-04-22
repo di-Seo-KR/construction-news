@@ -275,11 +275,11 @@ function SearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="키워드를 입력해 검색하세요"
-        className="w-full rounded-2xl border border-gray-200 bg-white py-4 pl-12 pr-32 text-base shadow-sm outline-none transition-all placeholder:text-gray-400 focus:border-gray-900 focus:shadow-md"
+        className="w-full rounded-2xl border border-gray-200 bg-white py-3 pl-11 pr-20 text-sm shadow-sm outline-none transition-all placeholder:text-gray-400 focus:border-gray-900 focus:shadow-md sm:py-4 sm:pl-12 sm:pr-32 sm:text-base"
       />
       <button
         type="submit"
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-gray-900 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-gray-700 sm:px-5 sm:py-2.5 sm:text-sm"
       >
         검색
       </button>
@@ -339,9 +339,14 @@ function FeaturedSection({
           message={`${range === "daily" ? "오늘" : "이번 주"} 표시할 주요 뉴스가 없습니다.`}
         />
       ) : (
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0">
           {items.map((item) => (
-            <NewsCard key={item.link} item={item} />
+            <div
+              key={item.link}
+              className="w-[85%] shrink-0 snap-start md:w-auto"
+            >
+              <NewsCard item={item} />
+            </div>
           ))}
         </div>
       )}
@@ -366,28 +371,28 @@ function CategoryHighlights({
         title="카테고리별 인사이트"
         subtitle="주제별 최신 뉴스 모음"
       />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3">
         {CATEGORIES.map((cat) => {
           const items = tops[cat.id] ?? [];
           return (
             <div
               key={cat.id}
-              className="flex flex-col rounded-xl border border-gray-200 bg-white p-5"
+              className="flex w-[85%] shrink-0 snap-start flex-col rounded-xl border border-gray-200 bg-white p-5 md:w-auto"
             >
-              <div className="flex items-center justify-between">
-                <h3 className="flex items-center gap-2 text-sm font-bold text-gray-900">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="flex min-w-0 items-center gap-2 text-sm font-bold text-gray-900">
                   <span
-                    className={`h-2 w-2 rounded-full ${
+                    className={`h-2 w-2 shrink-0 rounded-full ${
                       DOT_COLORS[cat.id] ?? "bg-gray-400"
                     }`}
                   />
-                  {cat.label}
+                  <span className="truncate">{cat.label}</span>
                 </h3>
                 <button
                   onClick={() => onCategoryClick(cat.id)}
-                  className="text-xs text-gray-500 hover:text-gray-900"
+                  className="shrink-0 whitespace-nowrap text-xs text-gray-500 hover:text-gray-900"
                 >
-                  전체보기 ({counts[cat.id] ?? 0}) →
+                  전체 {counts[cat.id] ?? 0} →
                 </button>
               </div>
               {loading ? (
@@ -511,12 +516,14 @@ function SectionHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="mb-5 flex items-end justify-between gap-4">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-gray-500">{subtitle}</p>}
+    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+      <div className="min-w-0">
+        <h2 className="text-lg font-bold text-gray-900 sm:text-xl">{title}</h2>
+        {subtitle && (
+          <p className="mt-1 text-xs text-gray-500 sm:text-sm">{subtitle}</p>
+        )}
       </div>
-      {children}
+      {children && <div className="shrink-0">{children}</div>}
     </div>
   );
 }
@@ -535,7 +542,7 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+      className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all ${
         active
           ? "bg-gray-900 text-white shadow-sm"
           : "bg-white text-gray-700 ring-1 ring-gray-200 hover:ring-gray-300"
