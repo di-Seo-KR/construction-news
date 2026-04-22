@@ -172,7 +172,7 @@ export default function NewsList() {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-8 sm:space-y-12">
       <SearchBar
         value={searchInput}
         onChange={setSearchInput}
@@ -275,7 +275,7 @@ function SearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="키워드를 입력해 검색하세요"
-        className="w-full rounded-2xl border border-gray-200 bg-white py-3.5 pl-11 pr-20 text-[15px] shadow-sm outline-none transition-all placeholder:text-gray-400 focus:border-gray-900 focus:shadow-md sm:py-4 sm:pl-12 sm:pr-32 sm:text-[17px]"
+        className="w-full rounded-2xl border border-gray-200 bg-white py-3.5 pl-11 pr-20 text-[15px] shadow-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#FFB81C] focus:shadow-[0_0_0_4px_rgba(255,184,28,0.15)] sm:py-4 sm:pl-12 sm:pr-32 sm:text-[17px]"
       />
       <button
         type="submit"
@@ -324,7 +324,7 @@ function FeaturedSection({
               onClick={() => onRangeChange("daily")}
               className={`rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors ${
                 range === "daily"
-                  ? "bg-white text-gray-900 shadow-sm"
+                  ? "bg-white text-gray-900 shadow-sm ring-1 ring-[#FFB81C]/40"
                   : "text-gray-500 hover:text-gray-900"
               }`}
             >
@@ -334,7 +334,7 @@ function FeaturedSection({
               onClick={() => onRangeChange("weekly")}
               className={`rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors ${
                 range === "weekly"
-                  ? "bg-white text-gray-900 shadow-sm"
+                  ? "bg-white text-gray-900 shadow-sm ring-1 ring-[#FFB81C]/40"
                   : "text-gray-500 hover:text-gray-900"
               }`}
             >
@@ -406,7 +406,7 @@ function CategoryHighlights({
           return (
             <div
               key={cat.id}
-              className="flex w-[85%] shrink-0 snap-start flex-col rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm md:w-[calc((100%-1.5rem)/3)] lg:w-[calc((100%-3.75rem)/6)]"
+              className="flex w-[85%] shrink-0 snap-start flex-col rounded-2xl border border-gray-200 bg-white p-5 transition-all hover:border-[#FFB81C]/60 hover:shadow-md md:w-[calc((100%-1.5rem)/3)] lg:w-[calc((100%-3.75rem)/6)]"
             >
               <button
                 onClick={() => onCategoryClick(cat.id)}
@@ -439,7 +439,7 @@ function CategoryHighlights({
                   아직 뉴스가 없습니다.
                 </p>
               ) : (
-                <ol className="mt-3 space-y-2.5">
+                <ol className="mt-4 space-y-3.5">
                   {items.map((item) => (
                     <li key={item.link}>
                       <a
@@ -576,14 +576,14 @@ function TabButton({
       onClick={onClick}
       className={`whitespace-nowrap rounded-full px-4 py-2 text-[15px] font-medium transition-all ${
         active
-          ? "bg-gray-900 text-white shadow-sm"
+          ? "bg-[#FFB81C] text-gray-900 shadow-sm"
           : "bg-white text-gray-700 ring-1 ring-gray-200 hover:ring-gray-300"
       }`}
     >
       {label}
       {count > 0 && (
         <span
-          className={`ml-2 text-[13px] ${active ? "text-gray-300" : "text-gray-400"}`}
+          className={`ml-2 text-[13px] ${active ? "text-gray-700" : "text-gray-400"}`}
         >
           {count}
         </span>
@@ -633,32 +633,32 @@ function NewsCard({ item }: { item: AnyItem }) {
       href={item.link}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block h-full rounded-xl border border-gray-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
+      className="group flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-[#FFB81C]/60 hover:shadow-md"
     >
-      <div className="flex flex-wrap items-center gap-2 text-[13px] text-gray-500">
+      <div className="flex items-center gap-2 text-[13px] text-gray-500">
         <span className="font-medium text-gray-700">
           {hostOf(item.originallink)}
         </span>
         <span>·</span>
         <span>{formatRelative(item.pubDate)}</span>
-        {categories.length > 0 && (
-          <span className="ml-auto flex flex-wrap gap-1">
-            {categories.map((id) => (
-              <span
-                key={id}
-                className={`rounded-md px-2 py-0.5 text-[12px] font-medium ring-1 ring-inset ${
-                  CATEGORY_COLORS[id] ?? "bg-gray-100 text-gray-700"
-                }`}
-              >
-                {labelOf(id)}
-              </span>
-            ))}
-          </span>
-        )}
       </div>
-      <h3 className="mt-2.5 text-[17px] font-semibold leading-snug text-gray-900 group-hover:text-gray-700">
+      <h3 className="mt-3 flex-1 text-[18px] font-semibold leading-snug text-gray-900 group-hover:text-gray-700">
         {stripHtml(item.title)}
       </h3>
+      {categories.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {categories.map((id) => (
+            <span
+              key={id}
+              className={`rounded-md px-2 py-0.5 text-[12px] font-medium ring-1 ring-inset ${
+                CATEGORY_COLORS[id] ?? "bg-gray-100 text-gray-700"
+              }`}
+            >
+              {labelOf(id)}
+            </span>
+          ))}
+        </div>
+      )}
     </a>
   );
 }

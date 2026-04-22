@@ -4,10 +4,11 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <header className="sticky top-0 z-10 border-b border-gray-200/80 bg-white/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-3 sm:px-8 sm:py-4">
+        <div className="h-0.5 w-full bg-[#FFB81C]" />
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-3.5 sm:px-8 sm:py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-900 text-sm font-bold text-white">
-              K
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FFB81C] text-base font-extrabold tracking-tight text-gray-900">
+              KB
             </div>
             <div>
               <h1 className="text-lg font-bold text-gray-900 sm:text-xl">
@@ -20,7 +21,7 @@ export default function Home() {
           </div>
         </div>
       </header>
-      <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-8 sm:py-6">
+      <div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-8 sm:py-10">
         <NewsList />
       </div>
     </main>
