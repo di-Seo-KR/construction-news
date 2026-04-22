@@ -121,7 +121,7 @@ export default function NewsList() {
     for (const cat of CATEGORIES) {
       map[cat.id] = allItems
         .filter((it) => it.categories.includes(cat.id))
-        .slice(0, 3);
+        .slice(0, 4);
     }
     return map;
   }, [allItems]);
@@ -347,14 +347,12 @@ function FeaturedSection({
               주간
             </button>
           </div>
-          {items.length > 8 && (
-            <button
-              onClick={() => setExpanded((v) => !v)}
-              className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-gray-700 ring-1 ring-gray-200 transition-colors hover:bg-gray-50 hover:text-gray-900"
-            >
-              {expanded ? "접기 ↑" : `더보기 ${items.length} →`}
-            </button>
-          )}
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-gray-700 ring-1 ring-gray-200 transition-colors hover:bg-gray-50 hover:text-gray-900"
+          >
+            {expanded ? "접기 ↑" : `+ 더보기${items.length > 0 ? ` ${items.length}` : ""}`}
+          </button>
         </div>
       </SectionHeader>
 
@@ -426,7 +424,7 @@ function CategoryHighlights({
           return (
             <div
               key={cat.id}
-              className="flex w-[85%] shrink-0 snap-start flex-col rounded-2xl border border-gray-200 bg-white p-5 transition-all hover:border-[#FFB81C]/60 hover:shadow-md md:w-[calc((100%-1.5rem)/3)] lg:w-[calc((100%-3.75rem)/6)]"
+              className="flex w-[85%] shrink-0 snap-start flex-col rounded-2xl border border-gray-200 bg-white p-5 transition-all hover:border-[#FFB81C]/60 hover:shadow-md md:w-[calc((100%-1.5rem)/3)]"
             >
               <button
                 onClick={() => onCategoryClick(cat.id)}
@@ -468,11 +466,11 @@ function CategoryHighlights({
                         rel="noopener noreferrer"
                         className="group block"
                       >
-                        <div className="text-[11px] text-gray-500">
+                        <div className="text-[12px] text-gray-500">
                           {hostOf(item.originallink)} ·{" "}
                           {formatRelative(item.pubDate)}
                         </div>
-                        <p className="mt-1 line-clamp-2 text-[14px] font-medium leading-snug text-gray-800 group-hover:text-gray-600">
+                        <p className="mt-1 line-clamp-2 text-[15px] font-medium leading-snug text-gray-800 group-hover:text-gray-600">
                           {stripHtml(item.title)}
                         </p>
                       </a>
