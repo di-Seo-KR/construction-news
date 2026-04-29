@@ -54,9 +54,11 @@ export async function GET(request: NextRequest) {
   let fetchedCount = 0;
   const failures: { keyword: string; status: number }[] = [];
 
-  const results = await Promise.all(
-    tasks.map(async ({ categoryId, keyword }) => {
-      const url = `${NAVER_ENDPOINT}?query=${encodeURIComponent(keyword)}&display=${PER_KEYWORD}&sort=date`;
+  const fetchWithRetry = async (
+    keyword: string,
+  ): Promise<NaverNewsItem[]> => {
+    const url = `${NAVER_ENDPOINT}?query=${encodeURIComponent(keyword)}&display=${PER_KEYWORD}&sort=date`;
+    for (let attempt = 0; attempt < 3; attempt++) {
       const response = await fetch(url, {
         headers: {
           "X-Naver-Client-Id": clientId,
@@ -64,15 +66,38 @@ export async function GET(request: NextRequest) {
         },
         cache: "no-store",
       });
-      if (!response.ok) {
-        failures.push({ keyword, status: response.status });
-        return { categoryId, items: [] as NaverNewsItem[] };
+      if (response.ok) {
+        const data = (await response.json()) as { items: NaverNewsItem[] };
+        fetchedCount += data.items.length;
+        return data.items;
       }
-      const data = (await response.json()) as { items: NaverNewsItem[] };
-      fetchedCount += data.items.length;
-      return { categoryId, items: data.items };
-    }),
-  );
+      if (response.status === 429 && attempt < 2) {
+        await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+        continue;
+      }
+      failures.push({ keyword, status: response.status });
+      return [];
+    }
+    return [];
+  };
+
+  // 배치당 5개씩, 배치 간 800ms — 네이버 rate limit 회피
+  const BATCH_SIZE = 5;
+  const BATCH_DELAY_MS = 800;
+  const results: { categoryId: string; items: NaverNewsItem[] }[] = [];
+  for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
+    const batch = tasks.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map(async ({ categoryId, keyword }) => ({
+        categoryId,
+        items: await fetchWithRetry(keyword),
+      })),
+    );
+    results.push(...batchResults);
+    if (i + BATCH_SIZE < tasks.length) {
+      await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
+    }
+  }
 
   const byKey = new Map<string, ArticleUpsert>();
   for (const { categoryId, items } of results) {
