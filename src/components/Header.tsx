@@ -44,8 +44,8 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative shrink-0 px-3 py-3 text-[15px] font-medium transition-colors sm:px-4 ${
-                    active ? "text-white" : "text-gray-400 hover:text-white"
+                  className={`relative shrink-0 px-3 py-3 text-[15px] font-bold transition-colors sm:px-4 ${
+                    active ? "text-white" : "text-gray-300 hover:text-white"
                   }`}
                 >
                   {item.label}

@@ -229,6 +229,12 @@ export default function NewsList() {
             loading={loading}
           />
 
+          <RankedLists
+            allItems={allItems}
+            sortedItems={sortedItems}
+            loading={loading}
+          />
+
           <FullFeed
             sectionRef={fullFeedRef}
             items={sortedItems}
@@ -434,6 +440,123 @@ function HeroSection({
         </div>
       )}
     </section>
+  );
+}
+
+function RankedLists({
+  allItems,
+  sortedItems,
+  loading,
+}: {
+  allItems: EnrichedNewsItem[];
+  sortedItems: EnrichedNewsItem[];
+  loading: boolean;
+}) {
+  const byRelevance = sortedItems.slice(0, 5);
+  const byDate = useMemo(
+    () =>
+      allItems
+        .slice()
+        .sort(
+          (a, b) =>
+            new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
+        )
+        .slice(0, 5),
+    [allItems],
+  );
+  const topPerCategory = useMemo(() => {
+    const out: EnrichedNewsItem[] = [];
+    for (const cat of CATEGORIES) {
+      const found = sortedItems.find((it) => it.categories.includes(cat.id));
+      if (found && !out.find((o) => o.link === found.link)) out.push(found);
+      if (out.length >= 5) break;
+    }
+    return out;
+  }, [sortedItems]);
+
+  return (
+    <section>
+      <SectionHeader title="뉴스 랭킹" subtitle="다양한 기준으로 보기" />
+      <div className="grid gap-4 md:grid-cols-3 md:gap-6">
+        <RankedColumn
+          title="주요 뉴스"
+          subtitle="관련도순"
+          items={byRelevance}
+          loading={loading}
+        />
+        <RankedColumn
+          title="최신 뉴스"
+          subtitle="시간순"
+          items={byDate}
+          loading={loading}
+        />
+        <RankedColumn
+          title="카테고리 핵심"
+          subtitle="카테고리별 대표 1건"
+          items={topPerCategory}
+          loading={loading}
+        />
+      </div>
+    </section>
+  );
+}
+
+function RankedColumn({
+  title,
+  subtitle,
+  items,
+  loading,
+}: {
+  title: string;
+  subtitle: string;
+  items: EnrichedNewsItem[];
+  loading: boolean;
+}) {
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-white p-5">
+      <div className="flex items-baseline justify-between gap-2">
+        <h3 className="text-base font-bold text-gray-900">{title}</h3>
+        <p className="text-[11px] text-gray-500">{subtitle}</p>
+      </div>
+      {loading ? (
+        <ul className="mt-4 space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <li key={i} className="animate-pulse">
+              <div className="h-4 w-full rounded bg-gray-200" />
+              <div className="mt-1 h-3 w-24 rounded bg-gray-100" />
+            </li>
+          ))}
+        </ul>
+      ) : items.length === 0 ? (
+        <p className="mt-4 text-sm text-gray-400">뉴스가 없습니다.</p>
+      ) : (
+        <ol className="mt-4 space-y-4">
+          {items.map((item, idx) => (
+            <li key={item.link}>
+              <a
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex gap-3"
+              >
+                <span className="shrink-0 text-base font-extrabold text-[#FFB81C]">
+                  {idx + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 text-[14px] font-medium leading-snug text-gray-800 group-hover:text-gray-600">
+                    {stripHtml(item.title)}
+                  </p>
+                  <p className="mt-1 text-[11px] text-gray-500">
+                    {hostOf(item.originallink)} ·{" "}
+                    {formatRelative(item.pubDate)}
+                  </p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
   );
 }
 
