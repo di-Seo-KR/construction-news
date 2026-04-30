@@ -25,7 +25,7 @@ export const CATEGORIES: Category[] = [
   },
   {
     id: "e-document",
-    label: "공인전자문서",
+    label: "전자문서",
     keywords: [
       "공인전자문서",
       "전자문서",
@@ -36,7 +36,7 @@ export const CATEGORIES: Category[] = [
   },
   {
     id: "finance-law",
-    label: "금융법령",
+    label: "경제",
     keywords: [
       "신용정보법",
       "금융소비자보호법",
@@ -49,7 +49,7 @@ export const CATEGORIES: Category[] = [
   },
   {
     id: "labor-law",
-    label: "노동법",
+    label: "노동",
     keywords: [
       "근로기준법",
       "노동법",
@@ -61,7 +61,7 @@ export const CATEGORIES: Category[] = [
   },
   {
     id: "kbci",
-    label: "KB금융그룹",
+    label: "KB",
     keywords: [
       "KB신용정보",
       "KB금융",
